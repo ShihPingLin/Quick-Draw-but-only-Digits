@@ -6,9 +6,9 @@ let canvas, ctx, flag = false,
     dot_flag = false;
 
 let x = "black",
-    y = 2;  // line width
+    y = 2;  // initial line width
 
-/********** width **********/
+/********** line width **********/
 let current_width = 2;
 function showVal(newVal) {
     y = newVal / 10;
@@ -77,11 +77,9 @@ function draw() {
 }
 
 function erase() {
-    // var m = confirm("Want to clear");
-    // if (m) {
     ctx.clearRect(0, 0, w, h);
-    document.getElementById("canvasimg").style.display = "none";
-    // }
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 /*
@@ -132,8 +130,4 @@ function findxy(res, e) {
             draw();
         }
     }
-    console.log(prevX)
-    console.log(prevY)
-    console.log(currX)
-    console.log(currY)
 }
