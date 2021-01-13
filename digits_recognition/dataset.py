@@ -5,7 +5,8 @@ from torch.utils.data import Dataset, DataLoader
 import glob
 import os
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageChops 
+
 
 class MNIST(Dataset):
     def __init__(self, root, transform=None):
@@ -28,6 +29,7 @@ class MNIST(Dataset):
         """ Get a sample from the dataset """
         image_fn, label = self.filenames[index]
         image = Image.open(image_fn)
+        image = ImageChops.invert(image) 
             
         if self.transform is not None:
             image = self.transform(image)
