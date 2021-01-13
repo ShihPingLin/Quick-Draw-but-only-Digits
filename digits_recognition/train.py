@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+from torch.backends import cudnn
 from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
 from torch.utils.data import Dataset, DataLoader
@@ -15,7 +16,6 @@ def train_one_epoch(args, model, device, train_loader, optimizer, epoch):
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
         data, target = data.to(device), target.to(device)
-        data = data*-1+1
         optimizer.zero_grad()
         output = model(data)
         loss = criterion(output, target)
@@ -34,7 +34,6 @@ def validate(model, device, val_loader):
     with torch.no_grad():
         for data, target in val_loader:
             data, target = data.to(device), target.to(device)
-            data = data*-1+1
             output = model(data)
             val_loss += criterion(output, target).item()  # sum up batch loss
             pred = output.max(1, keepdim=True)[1] # get the index of the max log-probability
@@ -73,23 +72,35 @@ def main():
 
     device = torch.device("cuda" if use_cuda else "cpu")
 
-    transform=transforms.Compose([
-        transforms.Resize((28,28)),
+    cudnn.deterministic = True
+    cudnn.benchmark = True
+    
+    train_transform = transforms.Compose([
+        transforms.RandomRotation(30),
+        transforms.RandomResizedCrop(28, scale=(0.75, 1.0)),
+        transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1),
         transforms.ToTensor(),
+        transforms.Normalize([0.5,],[0.5,])
+        ])
+
+    test_transform = transforms.Compose([
+        transforms.Resize(28),
+        transforms.ToTensor(),
+        transforms.Normalize([0.5,],[0.5])
         ])
         
     trainset = MNIST(root='mnist_png/training',
-        transform=transforms.ToTensor())
+        transform=train_transform)
 
     # load the testset
     testset = MNIST(root='mnist_png/testing',
-        transform=transforms.ToTensor())
+        transform=test_transform)
 
     train_loader = DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=1)
     test_loader = DataLoader(testset, batch_size=args.val_batch_size, shuffle=False, num_workers=1)
 
     model = Net().to(device)
-    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+    optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
     best_acc = -np.inf
     scheduler = StepLR(optimizer, step_size=5, gamma=args.gamma)

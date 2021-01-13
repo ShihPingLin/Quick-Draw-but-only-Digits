@@ -15,6 +15,7 @@ def test(model, device, test_image):
     transform=transforms.Compose([
         transforms.Resize((28,28)),
         transforms.ToTensor(),
+        transforms.Normalize([0.5,],[0.5])
         ])
     model.eval()
     with torch.no_grad():
@@ -23,7 +24,7 @@ def test(model, device, test_image):
         data = torch.unsqueeze(data, 0)
         data = data.to(device)
         output = model(data)
-        print(output)
+        print(F.softmax(output))
         pred = output.max(1, keepdim=True)[1] # get the index of the max log-probability
 
     return pred
