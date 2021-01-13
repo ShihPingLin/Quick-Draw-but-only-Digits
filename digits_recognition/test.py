@@ -24,10 +24,10 @@ def test(model, device, test_image):
         data = torch.unsqueeze(data, 0)
         data = data.to(device)
         output = model(data)
-        print(F.softmax(output))
         pred = output.max(1, keepdim=True)[1] # get the index of the max log-probability
+        print(F.softmax(output, dim=-1).cpu().numpy().tolist())
 
-    return pred
+    return pred, F.softmax(output, dim=-1).cpu().numpy().tolist()
 
 def main():
     # Testing settings
@@ -44,8 +44,9 @@ def main():
 
     state = torch.load(args.load)
     model.load_state_dict(state)
-    pred = test(model, device, args.test_image)
+    pred, prob = test(model, device, args.test_image)
     print(pred.item())
+    print(prob)
 
 if __name__ == '__main__':
     main()
