@@ -93,12 +93,49 @@ function save() {
     console.log(dataURL);
 }*/
 
+function getImageData(ctx) {
+    var w = canvas.width, h = canvas.height;
+    var img = ctx.getImageData(0, 0, w, h).data;
+    var arr = Array.from(img);
+    return arr;
+}
+
 // save image and download
 download_img = function (el) {
-    // get image URI from canvas object
-    var imageURI = canvas.toDataURL("image/jpg");
-    el.href = imageURI;
+    // get image directly from context
+    fetch(`${window.location.origin}/submit`, {
+        body: JSON.stringify({"features": getImageData(ctx)}),
+        headers: {
+            "content-type": "application/json"
+        },
+        method: "POST"
+    })
+    .then((response) => {
+        if (response.status !== 200) {
+
+        } else {
+            response.json().then((data) => {
+                var pred = document.getElementById("return-number");
+                pred.innerHTML = data.prediction;
+            });
+        }
+    });
 };
+
+const upload = () => {
+    var digit = document.getElementById("digit");
+    fetch(`${window.location.origin}/supervise`, {
+        body: JSON.stringify({
+            "features": getImageData(ctx),
+            "gt": digit.value
+        }),
+        headers: {
+            "content-type": "application/json"
+        },
+        method: "POST"
+    });
+    digit.value = "";
+}
 
 function findxy(res, e) {
     if (res == 'down') {

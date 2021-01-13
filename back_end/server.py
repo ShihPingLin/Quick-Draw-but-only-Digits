@@ -1,0 +1,50 @@
+import os
+import flask
+from flask import render_template, request, jsonify
+from flask_cors import CORS
+import firebase_admin
+from firebase_admin import credentials, firestore
+import numpy as np
+from PIL import Image
+
+# comment out this section
+path = os.path.abspath('./back_end/cccs-73770-firebase-adminsdk-843vx-620d8dbb71.json')
+cred = credentials.Certificate(path)
+firebase_admin.initialize_app(cred)
+firestore_db = firestore.client()
+
+template_dir = os.path.abspath('./front_end/')
+static_dir = os.path.abspath('./front_end/')
+app = flask.Flask(__name__, template_folder=template_dir, static_folder=static_dir)
+
+CORS(app)
+
+@app.route('/')
+def main():
+    return render_template('index.html')
+
+@app.route('/submit', methods=['POST'])
+def submit():
+    req = request.json
+    # make some prediction
+    # transmitted format is in H, W, C
+    # RGBA
+    features = np.uint8(req['features']).reshape((400, 400, -1))
+    pred = 2
+    response = {
+        'prediction': pred
+    }
+    return jsonify(response)
+
+@app.route('/supervise', methods=['POST'])
+def supvervise():
+    req = request.json
+    features = np.uint8(req['features']).reshape((400, 400, -1))
+    img = np.asarray(Image.fromarray(features).resize((28, 28), resample=Image.BILINEAR))
+    sample = {
+        u'features': img.reshape(-1).tolist(),
+        u'label': req['gt'],
+        u'timestamp': firestore.SERVER_TIMESTAMP
+    }
+    firestore_db.collection(u'mnist').add(sample)
+    return {'message': 'model saved'}
