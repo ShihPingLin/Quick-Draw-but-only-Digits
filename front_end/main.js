@@ -6,13 +6,14 @@ let canvas, ctx, flag = false,
     dot_flag = false;
 
 let x = "black",
-    y = 2;  // initial line width
+    y = 7;  // initial line width
 
 /********** line width **********/
-let current_width = 2;
+let current_width = 7;
 function showVal(newVal) {
-    y = newVal / 10;
+    y = newVal / 20 + 5;
     current_width = y;
+    console.log(y);
 }
 
 /********** canvas part **********/
@@ -104,22 +105,22 @@ function getImageData(ctx) {
 download_img = function (el) {
     // get image directly from context
     fetch(`${window.location.origin}/submit`, {
-        body: JSON.stringify({"features": getImageData(ctx)}),
+        body: JSON.stringify({ "features": getImageData(ctx) }),
         headers: {
             "content-type": "application/json"
         },
         method: "POST"
     })
-    .then((response) => {
-        if (response.status !== 200) {
+        .then((response) => {
+            if (response.status !== 200) {
 
-        } else {
-            response.json().then((data) => {
-                var pred = document.getElementById("return-number");
-                pred.innerHTML = data.prediction;
-            });
-        }
-    });
+            } else {
+                response.json().then((data) => {
+                    var pred = document.getElementById("return-number");
+                    pred.innerHTML = data.prediction;
+                });
+            }
+        });
 };
 
 const upload = () => {
