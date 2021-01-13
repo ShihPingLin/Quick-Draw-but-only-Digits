@@ -18,8 +18,10 @@ def test(model, device, test_image):
         ])
     model.eval()
     with torch.no_grad():
-        data = Image.open(test_image).convert('L')
+        # data = Image.open(test_image).convert('L')
+        data = Image.fromarray(test_image).convert('L')
         data = transform(data)
+        print(data.shape)
         data = torch.unsqueeze(data, 0)
         data = data.to(device)
         output = model(data)
