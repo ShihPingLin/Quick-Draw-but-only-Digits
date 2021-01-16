@@ -6,3 +6,5 @@ NTUEE Cloud Computing and Cyber Security final project
 $ pip install -r requirements.txt
 $ python run.py
 ```
+### Brief Introduction
+[Imgur](https://i.imgur.com/l3uzvFl.jpg)
