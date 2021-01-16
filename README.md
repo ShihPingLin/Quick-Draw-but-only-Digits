@@ -7,4 +7,4 @@ $ pip install -r requirements.txt
 $ python run.py
 ```
 ### Brief Introduction
-[Imgur](https://i.imgur.com/l3uzvFl.jpg)
+![Imgur](https://i.imgur.com/EHTBqbs.png)
